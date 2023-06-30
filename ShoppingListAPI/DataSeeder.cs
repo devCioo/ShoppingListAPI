@@ -17,6 +17,12 @@ namespace ShoppingListAPI
         {
             if (_dbContext.Database.CanConnect())
             {
+                if (!_dbContext.Roles.Any())
+                {
+                    var roles = GetRoles();
+                    _dbContext.Roles.AddRange(roles);
+                    _dbContext.SaveChanges();
+                }
                 if (!_dbContext.Users.Any())
                 {
                     var users = GetUsers();
@@ -26,6 +32,26 @@ namespace ShoppingListAPI
             }
         }
 
+        private IEnumerable<Role> GetRoles()
+        {
+            var roles = new List<Role>
+            {
+                new Role
+                {
+                    Name = "Standard user"
+                },
+                new Role
+                {
+                    Name = "VIP user"
+                },
+                new Role
+                {
+                    Name = "Administrator"
+                }
+            };
+
+            return roles;
+        }
         private IEnumerable<User> GetUsers()
         {
             var users = new List<User>
@@ -34,10 +60,7 @@ namespace ShoppingListAPI
                 {
                     Login = "admin",
                     PasswordHash = "admin",
-                    Role = new Role
-                    {
-                        Name = "Administrator"
-                    },
+                    Role = _dbContext.Roles.FirstOrDefault(r => r.Name == "Administrator"),
                     UserData = new UserData
                     {
                         FirstName = "",
@@ -50,10 +73,7 @@ namespace ShoppingListAPI
                 {
                     Login = "user123",
                     PasswordHash = "password123",
-                    Role = new Role
-                    {
-                        Name = "Standard user"
-                    },
+                    Role = _dbContext.Roles.FirstOrDefault(r => r.Name == "Standard user"),
                     UserData = new UserData
                     {
                         FirstName = "Toni",
