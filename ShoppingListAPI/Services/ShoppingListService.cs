@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using ShoppingListAPI.Entities;
+using ShoppingListAPI.Exceptions;
 using ShoppingListAPI.Models;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,18 +15,20 @@ namespace ShoppingListAPI.Services
         IEnumerable<ShoppingListDto> GetUserShoppingLists(int userId);
         ShoppingListDto GetShoppingListById(int userId, int shoppingListId);
         int CreateShoppingList(int userId, CreateShoppingListDto dto);
-        bool RemoveShoppingList(int userId, int shoppingListId);
-        bool UpdateShoppingList(int userId, int shoppingListId, UpdateShoppingListDto dto);
+        void RemoveShoppingList(int userId, int shoppingListId);
+        void UpdateShoppingList(int userId, int shoppingListId, UpdateShoppingListDto dto);
     }
     public class ShoppingListService : IShoppingListService
     {
         private readonly ShoppingListDbContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly ILogger<ShoppingListService> _logger;
 
-        public ShoppingListService(ShoppingListDbContext dbContext, IMapper mapper)
+        public ShoppingListService(ShoppingListDbContext dbContext, IMapper mapper, ILogger<ShoppingListService> logger)
         {
             _dbContext = dbContext;
             _mapper = mapper;
+            _logger = logger;
         }
         public IEnumerable<ShoppingListDto> GetUserShoppingLists(int userId)
         {
@@ -47,7 +51,7 @@ namespace ShoppingListAPI.Services
 
             if (shoppingList is null)
             {
-                return null;
+                throw new KeyNotFoundException("Shopping list not found");
             }
 
             var shoppingListDto = _mapper.Map<ShoppingListDto>(shoppingList);
@@ -64,7 +68,7 @@ namespace ShoppingListAPI.Services
 
             return shoppingList.Id;
         }
-        public bool RemoveShoppingList(int userId, int shoppingListId)
+        public void RemoveShoppingList(int userId, int shoppingListId)
         {
             var shoppingList = _dbContext.ShoppingLists
                 .Where(sl => sl.UserId == userId)
@@ -72,15 +76,13 @@ namespace ShoppingListAPI.Services
 
             if (shoppingList is null)
             {
-                return false;
+                throw new KeyNotFoundException("Shopping list not found");
             }
 
             _dbContext.ShoppingLists.Remove(shoppingList);
             _dbContext.SaveChanges();
-
-            return true;
         }
-        public bool UpdateShoppingList(int userId, int shoppingListId, UpdateShoppingListDto dto)
+        public void UpdateShoppingList(int userId, int shoppingListId, UpdateShoppingListDto dto)
         {
             var shoppingList = _dbContext.ShoppingLists
                 .Where(sl => sl.UserId == userId)
@@ -88,15 +90,13 @@ namespace ShoppingListAPI.Services
 
             if (shoppingList is null)
             {
-                return false;
+                throw new NotFoundException("Shopping list not found");
             }
 
             shoppingList.Name = dto.Name;
             shoppingList.Description = dto.Description;
 
             _dbContext.SaveChanges();
-
-            return true;
         }
     }
 }

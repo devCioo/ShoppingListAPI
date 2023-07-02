@@ -10,6 +10,7 @@ using System.Linq;
 namespace ShoppingListAPI.Controllers
 {
     [Route("api/user/{userId}/shoppinglist")]
+    [ApiController]
     public class ShoppingListController : ControllerBase
     {
         private readonly IShoppingListService _shoppingListService;
@@ -31,23 +32,13 @@ namespace ShoppingListAPI.Controllers
         public ActionResult<ShoppingListDto> Get([FromRoute] int userId, [FromRoute] int shoppingListId)
         {
             var shoppingList = _shoppingListService.GetShoppingListById(userId, shoppingListId);
-            
-            if (shoppingList is null)
-            {
-                return NotFound();
-            }
 
-           return Ok(shoppingList);
+            return Ok(shoppingList);
         }
 
         [HttpPost]
         public ActionResult Post([FromRoute] int userId, [FromBody] CreateShoppingListDto dto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var shoppingListId = _shoppingListService.CreateShoppingList(userId, dto);
 
             return Created($"api/user/{userId}/shoppinglist/{shoppingListId}", null);
@@ -56,29 +47,15 @@ namespace ShoppingListAPI.Controllers
         [HttpDelete("{shoppingListId}")]
         public ActionResult Delete([FromRoute] int userId, [FromRoute] int shoppingListId)
         {
-            var isDeleted = _shoppingListService.RemoveShoppingList(userId, shoppingListId);
+            _shoppingListService.RemoveShoppingList(userId, shoppingListId);
 
-            if (isDeleted)
-            {
-                return NoContent();
-            }
-
-            return NotFound();
+            return NoContent();
         }
 
         [HttpPut("{shoppingListId}")]
         public ActionResult Update([FromRoute] int userId, [FromRoute] int shoppingListId, [FromBody] UpdateShoppingListDto dto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var isUpdated = _shoppingListService.UpdateShoppingList(userId, shoppingListId, dto);
-            if (!isUpdated)
-            {
-                return NotFound();
-            }
+            _shoppingListService.UpdateShoppingList(userId, shoppingListId, dto);
 
             return Ok();
         }

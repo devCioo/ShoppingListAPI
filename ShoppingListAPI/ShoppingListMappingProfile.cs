@@ -12,6 +12,7 @@ namespace ShoppingListAPI
             CreateMap<CreateShoppingListDto, ShoppingList>();
 
             CreateMap<Item, ItemDto>();
+            CreateMap<CreateItemDto, Item>();
         }
     }
 }
