@@ -1,6 +1,7 @@
 using AutoMapper;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -11,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using ShoppingListAPI.Authorization;
 using ShoppingListAPI.Entities;
 using ShoppingListAPI.Middleware;
 using ShoppingListAPI.Models;
@@ -56,6 +58,12 @@ namespace ShoppingListAPI
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authenticationSettings.JwtKey))
                 };
             });
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("ShoppingListsLimit", builder => builder.AddRequirements(new ShoppingListsCreatingLimitRequirement()));
+            });
+
+            services.AddScoped<IAuthorizationHandler, ShoppingListsCreatingLimitRequirementHandler>();
             services.AddControllers().AddFluentValidation();
             services.AddDbContext<ShoppingListDbContext>();
             services.AddScoped<DataSeeder>();

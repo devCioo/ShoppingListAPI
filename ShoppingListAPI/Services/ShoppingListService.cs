@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using ShoppingListAPI.Entities;
 using ShoppingListAPI.Exceptions;
 using ShoppingListAPI.Models;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -62,6 +63,7 @@ namespace ShoppingListAPI.Services
         {
             var shoppingList = _mapper.Map<ShoppingList>(dto);
             shoppingList.UserId = userId;
+            shoppingList.CreatedOn = DateTime.Now;
 
             _dbContext.ShoppingLists.Add(shoppingList);
             _dbContext.SaveChanges();

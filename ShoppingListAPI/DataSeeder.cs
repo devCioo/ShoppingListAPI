@@ -1,4 +1,5 @@
-﻿using ShoppingListAPI.Entities;
+﻿using Microsoft.AspNetCore.Identity;
+using ShoppingListAPI.Entities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,9 +10,12 @@ namespace ShoppingListAPI
     public class DataSeeder
     {
         private readonly ShoppingListDbContext _dbContext;
-        public DataSeeder(ShoppingListDbContext dbContext)
+        private readonly IPasswordHasher<User> _passwordHasher;
+
+        public DataSeeder(ShoppingListDbContext dbContext, IPasswordHasher<User> passwordHasher)
         {
             _dbContext = dbContext;
+            _passwordHasher = passwordHasher;
         }
         public void Seed()
         {
@@ -54,34 +58,32 @@ namespace ShoppingListAPI
         }
         private IEnumerable<User> GetUsers()
         {
-            var users = new List<User>
+            var users = new List<User>();
+            var admin = new User
             {
-                new User
+                Login = "admin",
+                Role = _dbContext.Roles.FirstOrDefault(r => r.Name == "Administrator"),
+                UserData = new UserData
                 {
-                    Login = "admin",
-                    PasswordHash = "admin",
-                    Role = _dbContext.Roles.FirstOrDefault(r => r.Name == "Administrator"),
-                    UserData = new UserData
-                    {
-                        FirstName = "",
-                        LastName = "",
-                        Email = "",
-                        PhoneNumber = ""
-                    }
+                    FirstName = "",
+                    LastName = "",
+                    Email = "",
+                    PhoneNumber = ""
+                }
+            };
+            admin.PasswordHash = _passwordHasher.HashPassword(admin, "admin");
+            var user = new User
+            {
+                Login = "user123",
+                Role = _dbContext.Roles.FirstOrDefault(r => r.Name == "Standard user"),
+                UserData = new UserData
+                {
+                    FirstName = "Toni",
+                    LastName = "Dripano",
+                    Email = "tdripano@gmail.com",
+                    PhoneNumber = "510969431",
                 },
-                new User
-                {
-                    Login = "user123",
-                    PasswordHash = "password123",
-                    Role = _dbContext.Roles.FirstOrDefault(r => r.Name == "Standard user"),
-                    UserData = new UserData
-                    {
-                        FirstName = "Toni",
-                        LastName = "Dripano",
-                        Email = "tdripano@gmail.com",
-                        PhoneNumber = "510969431",
-                    },
-                    ShoppingLists = new List<ShoppingList>
+                ShoppingLists = new List<ShoppingList>
                     {
                         new ShoppingList
                         {
@@ -115,8 +117,11 @@ namespace ShoppingListAPI
                             }
                         }
                     }
-                }
             };
+            user.PasswordHash = _passwordHasher.HashPassword(user, "password123");
+
+            users.Add(admin);
+            users.Add(user);
 
             return users;
         }

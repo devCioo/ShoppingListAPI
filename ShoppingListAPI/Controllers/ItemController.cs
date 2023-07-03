@@ -1,12 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ShoppingListAPI.Models;
 using ShoppingListAPI.Services;
 using System.Collections.Generic;
+using System.Security.Claims;
 
 namespace ShoppingListAPI.Controllers
 {
-    [Route("api/user/{userId}/shoppinglist/{shoppingListId}/item")]
+    [Route("api/shoppinglist/{shoppingListId}/item")]
     [ApiController]
+    [Authorize]
     public class ItemController : ControllerBase
     {
         private readonly IItemService _itemService;
@@ -17,32 +20,36 @@ namespace ShoppingListAPI.Controllers
         }
 
         [HttpGet]
-        public ActionResult<List<ItemDto>> GetAll([FromRoute] int userId, [FromRoute] int shoppingListId)
+        public ActionResult<List<ItemDto>> GetAll([FromRoute] int shoppingListId)
         {
+            var userId = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value);
             var items = _itemService.GetAllShoppingListItems(userId, shoppingListId);
 
             return Ok(items);
         }
 
         [HttpGet("{itemId}")]
-        public ActionResult<ItemDto> Get([FromRoute] int userId, [FromRoute] int shoppingListId, [FromRoute] int itemId)
+        public ActionResult<ItemDto> Get([FromRoute] int shoppingListId, [FromRoute] int itemId)
         {
+            var userId = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value);
             var item = _itemService.GetItemById(userId, shoppingListId, itemId);
 
             return Ok(item);
         }
 
         [HttpPost]
-        public ActionResult Post([FromRoute] int userId, [FromRoute] int shoppingListId, [FromBody] CreateItemDto dto)
+        public ActionResult Post([FromRoute] int shoppingListId, [FromBody] CreateItemDto dto)
         {
+            var userId = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value);
             var itemId = _itemService.AddItemToShoppingList(userId, shoppingListId, dto);
 
-            return Created($"api/user/{userId}/shoppinglist/{shoppingListId}/item/{itemId}", null);
+            return Created($"api/shoppinglist/{shoppingListId}/item/{itemId}", null);
         }
 
         [HttpDelete("{itemId}")]
-        public ActionResult Delete([FromRoute] int userId, [FromRoute] int shoppingListId, [FromRoute] int itemId)
+        public ActionResult Delete([FromRoute] int shoppingListId, [FromRoute] int itemId)
         {
+            var userId = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value);
             _itemService.RemoveItemFromShoppingList(userId, shoppingListId, itemId);
 
             return NoContent();
