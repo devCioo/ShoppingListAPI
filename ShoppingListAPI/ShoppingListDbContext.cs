@@ -19,9 +19,6 @@ namespace ShoppingListAPI
                 .Property(u => u.Login)
                 .IsRequired()
                 .HasMaxLength(25);
-            modelBuilder.Entity<User>()
-                .Property(u => u.PasswordHash)
-                .IsRequired();
 
             modelBuilder.Entity<Role>()
                 .Property(r => r.Name)

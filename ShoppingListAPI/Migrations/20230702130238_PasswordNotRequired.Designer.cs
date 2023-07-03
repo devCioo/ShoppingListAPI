@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ShoppingListAPI;
 
 namespace ShoppingListAPI.Migrations
 {
     [DbContext(typeof(ShoppingListDbContext))]
-    partial class ShoppingListDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230702130238_PasswordNotRequired")]
+    partial class PasswordNotRequired
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -120,7 +122,8 @@ namespace ShoppingListAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RoleId");
+                    b.HasIndex("RoleId")
+                        .IsUnique();
 
                     b.HasIndex("UserDataId")
                         .IsUnique();
@@ -178,8 +181,8 @@ namespace ShoppingListAPI.Migrations
             modelBuilder.Entity("ShoppingListAPI.Entities.User", b =>
                 {
                     b.HasOne("ShoppingListAPI.Entities.Role", "Role")
-                        .WithMany()
-                        .HasForeignKey("RoleId")
+                        .WithOne("User")
+                        .HasForeignKey("ShoppingListAPI.Entities.User", "RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -192,6 +195,11 @@ namespace ShoppingListAPI.Migrations
                     b.Navigation("Role");
 
                     b.Navigation("UserData");
+                });
+
+            modelBuilder.Entity("ShoppingListAPI.Entities.Role", b =>
+                {
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("ShoppingListAPI.Entities.ShoppingList", b =>

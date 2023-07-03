@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ShoppingListAPI.Entities;
@@ -11,6 +12,7 @@ namespace ShoppingListAPI.Controllers
 {
     [Route("api/user/{userId}/shoppinglist")]
     [ApiController]
+    [Authorize]
     public class ShoppingListController : ControllerBase
     {
         private readonly IShoppingListService _shoppingListService;
