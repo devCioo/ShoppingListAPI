@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 
 namespace ShoppingListAPI.Services
 {
@@ -18,6 +19,7 @@ namespace ShoppingListAPI.Services
         int CreateShoppingList(int userId, CreateShoppingListDto dto);
         void RemoveShoppingList(int userId, int shoppingListId);
         void UpdateShoppingList(int userId, int shoppingListId, UpdateShoppingListDto dto);
+        string ShoppingListStringify(ShoppingListDto dto);
     }
     public class ShoppingListService : IShoppingListService
     {
@@ -35,7 +37,6 @@ namespace ShoppingListAPI.Services
         {
             var shoppingLists = _dbContext
                 .ShoppingLists
-                .Include(sl => sl.Items)
                 .Where(sl => sl.UserId == userId)
                 .ToList();
 
@@ -52,7 +53,7 @@ namespace ShoppingListAPI.Services
 
             if (shoppingList is null)
             {
-                throw new KeyNotFoundException("Shopping list not found");
+                throw new NotFoundException("Shopping list not found");
             }
 
             var shoppingListDto = _mapper.Map<ShoppingListDto>(shoppingList);
@@ -78,7 +79,7 @@ namespace ShoppingListAPI.Services
 
             if (shoppingList is null)
             {
-                throw new KeyNotFoundException("Shopping list not found");
+                throw new NotFoundException("Shopping list not found");
             }
 
             _dbContext.ShoppingLists.Remove(shoppingList);
@@ -99,6 +100,27 @@ namespace ShoppingListAPI.Services
             shoppingList.Description = dto.Description;
 
             _dbContext.SaveChanges();
+        }
+        public string ShoppingListStringify(ShoppingListDto dto)
+        {
+            var shoppingListData = $"\t\t\t<<< {dto.Name} >>>\n" +
+                $"Description: {dto.Description}\n\n";
+
+            int i = 1;
+            double total = 0, sum = 0;
+            foreach(ItemDto item in dto.Items)
+            {
+                total = item.UnitPrice * item.Quantity;
+                shoppingListData += $"{i}. Item: {item.Name}\t"
+                    + $"Cost: {item.UnitPrice}/" 
+                    + (item.MeasureUnit == 0 ? "unit" : "kg")
+                    + $"\tQuantity: {item.Quantity}\tIn total: {total}\n{item.Description}\n";
+                sum += total;
+                i++;
+            }
+            shoppingListData += $"\tTotal sum: {sum}";
+
+            return shoppingListData;
         }
     }
 }

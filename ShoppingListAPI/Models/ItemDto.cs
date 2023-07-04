@@ -10,5 +10,6 @@ namespace ShoppingListAPI.Models
         public MeasureUnit MeasureUnit { get; set; }
         public double UnitPrice { get; set; }
         public double Quantity { get; set; }
+        public int ShoppingListId { get; set; }
     }
 }

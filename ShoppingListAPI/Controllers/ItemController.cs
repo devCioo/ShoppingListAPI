@@ -20,10 +20,10 @@ namespace ShoppingListAPI.Controllers
         }
 
         [HttpGet]
-        public ActionResult<List<ItemDto>> GetAll([FromRoute] int shoppingListId)
+        public ActionResult<List<ItemDto>> GetAll([FromRoute] int shoppingListId, [FromQuery] ItemQuery query)
         {
             var userId = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value);
-            var items = _itemService.GetAllShoppingListItems(userId, shoppingListId);
+            var items = _itemService.GetAllShoppingListItems(userId, shoppingListId, query);
 
             return Ok(items);
         }
@@ -53,6 +53,15 @@ namespace ShoppingListAPI.Controllers
             _itemService.RemoveItemFromShoppingList(userId, shoppingListId, itemId);
 
             return NoContent();
+        }
+
+        [HttpPut("{itemId}")]
+        public ActionResult Update([FromRoute] int shoppingListId, [FromRoute] int itemId, [FromBody] UpdateItemDto dto)
+        {
+            var userId = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value);
+            _itemService.UpdateItemInShoppingList(userId, shoppingListId, itemId, dto);
+
+            return Ok();
         }
     }
 }

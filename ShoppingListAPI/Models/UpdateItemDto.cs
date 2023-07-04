@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ShoppingListAPI.Models
 {
-    public class CreateItemDto
+    public class UpdateItemDto
     {
         [Required]
         [MaxLength(70)]

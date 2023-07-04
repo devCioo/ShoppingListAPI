@@ -74,12 +74,14 @@ namespace ShoppingListAPI
             services.AddScoped<ErrorHandlingMiddleware>();
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
             services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
+            services.AddScoped<IValidator<ItemQuery>, ItemQueryValidator>();
             services.AddSwaggerGen();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, DataSeeder seeder)
         {
+            app.UseStaticFiles();
             seeder.Seed();
             if (env.IsDevelopment())
             {

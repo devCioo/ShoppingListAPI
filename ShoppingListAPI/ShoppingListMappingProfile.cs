@@ -13,6 +13,9 @@ namespace ShoppingListAPI
 
             CreateMap<Item, ItemDto>();
             CreateMap<CreateItemDto, Item>();
+
+            CreateMap<ShoppingListDto, ShoppingList>()
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Items));
         }
     }
 }
