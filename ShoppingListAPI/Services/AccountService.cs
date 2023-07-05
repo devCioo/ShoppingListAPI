@@ -16,7 +16,8 @@ namespace ShoppingListAPI.Services
     public interface IAccountService
     {
         void RegisterUser(RegisterUserDto dto);
-        string GenerateJwt(LoginDto dto);
+        string GenerateToken(LoginDto dto);
+        void ChangePassword(int userId, ChangePasswordDto dto);
     }
     public class AccountService : IAccountService
     {
@@ -51,7 +52,7 @@ namespace ShoppingListAPI.Services
             _dbContext.Users.Add(user);
             _dbContext.SaveChanges();
         }
-        public string GenerateJwt(LoginDto dto)
+        public string GenerateToken(LoginDto dto)
         {
             var user = _dbContext.Users
                 .Include(u => u.Role)
@@ -89,6 +90,19 @@ namespace ShoppingListAPI.Services
 
             var tokenHandler = new JwtSecurityTokenHandler();
             return tokenHandler.WriteToken(token);
+        }
+        public void ChangePassword(int userId, ChangePasswordDto dto)
+        {
+            var user = _dbContext.Users.FirstOrDefault(u => u.Id == userId);
+            if (_passwordHasher.VerifyHashedPassword(user, user.PasswordHash, dto.OldPassword) != PasswordVerificationResult.Success)
+            {
+                throw new InvalidPasswordException("Incorrect old password");
+            }
+
+            var newPassword = _passwordHasher.HashPassword(user, dto.NewPassword);
+            user.PasswordHash = newPassword;
+
+            _dbContext.SaveChanges();
         }
     }
 }

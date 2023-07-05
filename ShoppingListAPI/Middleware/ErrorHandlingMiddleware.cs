@@ -20,7 +20,12 @@ namespace ShoppingListAPI.Middleware
             {
                 await next.Invoke(context);
             }
-            catch(BadRequestException e)
+            catch (InvalidPasswordException e)
+            {
+                context.Response.StatusCode = 404;
+                await context.Response.WriteAsync(e.Message);
+            }
+            catch (BadRequestException e)
             {
                 context.Response.StatusCode = 400;
                 await context.Response.WriteAsync(e.Message);

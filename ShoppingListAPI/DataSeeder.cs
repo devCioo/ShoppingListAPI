@@ -78,9 +78,9 @@ namespace ShoppingListAPI
                 Role = _dbContext.Roles.FirstOrDefault(r => r.Name == "Standard user"),
                 UserData = new UserData
                 {
-                    FirstName = "Toni",
-                    LastName = "Dripano",
-                    Email = "tdripano@gmail.com",
+                    FirstName = "Matthew",
+                    LastName = "Hill",
+                    Email = "mhill@gmail.com",
                     PhoneNumber = "510969431",
                 },
                 ShoppingLists = new List<ShoppingList>

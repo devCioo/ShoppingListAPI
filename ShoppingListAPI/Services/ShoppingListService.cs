@@ -118,7 +118,7 @@ namespace ShoppingListAPI.Services
                 sum += total;
                 i++;
             }
-            shoppingListData += $"\tTotal sum: {sum}";
+            shoppingListData += $"Total sum: {sum}";
 
             return shoppingListData;
         }

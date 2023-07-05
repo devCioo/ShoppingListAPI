@@ -74,6 +74,7 @@ namespace ShoppingListAPI
             services.AddScoped<ErrorHandlingMiddleware>();
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
             services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
+            services.AddScoped<IValidator<ChangePasswordDto>, ChangePasswordDtoValidator>();
             services.AddScoped<IValidator<ItemQuery>, ItemQueryValidator>();
             services.AddSwaggerGen();
         }
@@ -92,9 +93,10 @@ namespace ShoppingListAPI
             app.UseHttpsRedirection();
 
             app.UseSwagger();
-            app.UseSwaggerUI(c =>
+            app.UseSwaggerUI(options =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "ShoppingListAPI");
+                options.SwaggerEndpoint("/swagger/v1/swagger.json", "ShoppingListAPI");
+                options.DocumentTitle = "Swagger UI - ShoppingListAPI";
             });
             app.UseRouting();
             app.UseAuthorization();
